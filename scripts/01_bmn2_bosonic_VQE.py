@@ -32,12 +32,6 @@ def bmn2_hamiltonian(L: int = 2, N: int = 2, g2N: float = 0.2):
     a_b = diags(np.sqrt(np.linspace(1, L - 1, L - 1)), offsets=1)
     # The identity operator of the Fock space of a single boson
     i_b = identity(L)
-    # The annihilation operator for the fermions (always cutoff = 2 because it is a spin)
-    a_f = diags(np.sqrt(np.linspace(1, 1, 1)), offsets=1)
-    # The Pauli $\sigma_z$ matrix
-    sz = diags([1.0, -1.0])
-    # Identity for the single fermion space
-    i_f = identity(2)
     # Bosonic Hilbert space
     N_bos = int(2 * (N ** 2 - 1))  # number of boson sites -> fixed for mini-BMN 2
     product_list = [i_b] * N_bos  # only the identity for bosons repeated N_bos times
@@ -54,51 +48,18 @@ def bmn2_hamiltonian(L: int = 2, N: int = 2, g2N: float = 0.2):
             a_b_list[i] = kron(
                 a_b_list[i], a
             )  # do the outer product between each operator_list element
-    # Fermionic Hilbert space
-    N_f = 3  # number of fermionic sites -> fixed for the supersymmetric model mini-BMN with 2 matrices
-    product_list = [i_f] * N_f  # only the identity for fermions repeated N_f times
-    a_f_list = []  # this will contain f1...f3
-    for i in np.arange(0, N_f):  # loop over all bosonic operators
-        operator_list = product_list.copy()  # all elements are the identity operator
-        operator_list[
-            i
-        ] = a_f  # the i^th element is now the annihilation operator for a single fermion
-        for j in np.arange(0, i):  # the 0:(i-1) elements are replaced by sigma_Z
-            operator_list[j] = sz
-        a_f_list.append(
-            operator_list[0]
-        )  # start taking tensor products from the first operator
-        for a in operator_list[1:]:
-            a_f_list[i] = kron(a_f_list[i], a)  # do the outer product
-    # Combine the Bosonic and Fermionic space
-    # - Identity for bosonic space (dimension will be $L^{N_{bos}} \times L^{N_{bos}}$)
-    i_b_tot = identity(L ** N_bos)
-    # - Identity for fermionic space (dimension will be $2^{N_f} \times 2^{N_f}$)
-    i_f_tot = identity(2 ** N_f)
-    # The new bosonic and fermionic operators combined into one list
-    op_list = []
-    for a in a_b_list:
-        op_list.append(kron(a, i_f_tot))
-    for a in a_f_list:
-        op_list.append(kron(i_b_tot, a))
     # Build the Hamiltonian
     # Start piece by piece
     x_list = []
     # only use the bosonic operators
-    bosons = op_list[:N_bos]
-    for op in bosons:
+    for op in a_b_list:
         x_list.append(1 / np.sqrt(2) * (op.conjugate().transpose() + op))
-    # save the fermions operators for convenience in a new list
-    fermions = op_list[-N_f:]
     # Free Hamiltonian
     H_k = 0
-    for a in op_list[:N_bos]:
+    for a in a_b_list:
         H_k = H_k + a.conjugate().transpose() * a
-
-    for a in op_list[-N_f:]:
-        H_k = H_k + (3.0 / 2) * a.conjugate().transpose() * a
     # vacuum energy
-    H_k = H_k + 0.25 * (2 * N_bos - 3 * N_f - 3)
+    H_k = H_k + 0.5 * N_bos * identity(L**N_bos)
     # Interaction among bosons
     V_b = (
         x_list[2] * x_list[2] * x_list[3] * x_list[3]
@@ -111,23 +72,8 @@ def bmn2_hamiltonian(L: int = 2, N: int = 2, g2N: float = 0.2):
         - 2 * x_list[0] * x_list[1] * x_list[3] * x_list[4]
         - 2 * x_list[1] * x_list[2] * x_list[4] * x_list[5]
     )
-    # Interactions between bosons and fermions
-    V_bf = (2j / np.sqrt(2)) * (
-        (x_list[0] - 1j * x_list[3])
-        * fermions[1].conjugate().transpose()
-        * fermions[2].conjugate().transpose()
-        + (x_list[1] - 1j * x_list[4])
-        * fermions[2].conjugate().transpose()
-        * fermions[0].conjugate().transpose()
-        + (x_list[2] - 1j * x_list[5])
-        * fermions[0].conjugate().transpose()
-        * fermions[1].conjugate().transpose()
-        - (x_list[0] + 1j * x_list[3]) * fermions[2] * fermions[1]
-        - (x_list[1] + 1j * x_list[4]) * fermions[0] * fermions[2]
-        - (x_list[2] + 1j * x_list[5]) * fermions[1] * fermions[0]
-    )
     # full hamiltonian
-    return H_k + g2N / N * V_b + np.sqrt(g2N / N) * V_bf
+    return H_k + g2N / N * V_b
 
 
 def eigenvalues_scipy(H, k: int = 10):
@@ -164,7 +110,7 @@ def run_vqe(
     depth: int = 3,
     nrep: int = 1,
 ):
-    """Run the main VQE solver for a minimal BMN Hamiltonian where bosons are LxL matrices and the 't Hooft coupling is g2N for a SU(N) gauge group.
+    """Run the main VQE solver for a bosonic BMN Hamiltonian where bosons are LxL matrices and the 't Hooft coupling is g2N for a SU(N) gauge group.
     The VQE is initialized with a specific optimizer and a specific variational quantum circuit based on EfficientSU2.
 
     Args:
@@ -254,7 +200,7 @@ def run_vqe(
     df = df.explode(["counts", "energy"]).astype(data_types_dict).rename_axis("rep")
     varname = "-".join(varform)
     outfile = (
-        f"data/miniBMN_convergence_{optimizer}_{varname}_depth{depth}_reps{nrep}.h5"
+        f"data/bosBMN_convergence_{optimizer}_{varname}_depth{depth}_reps{nrep}.h5"
     )
     print(f"Save results on disk: {outfile}")
     df.to_hdf(outfile, "vqe")
