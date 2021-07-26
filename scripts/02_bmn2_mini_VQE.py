@@ -163,6 +163,7 @@ def run_vqe(
     varform: list = ["ry"],
     depth: int = 3,
     nrep: int = 1,
+    rngseed: int = 0,
 ):
     """Run the main VQE solver for a minimal BMN Hamiltonian where bosons are LxL matrices and the 't Hooft coupling is g2N for a SU(N) gauge group.
     The VQE is initialized with a specific optimizer and a specific variational quantum circuit based on EfficientSU2.
@@ -175,6 +176,7 @@ def run_vqe(
         varform (str, optional): EfficientSU2 rotation gates. Defaults to 'ry'.
         depth (int, optional): Depth of the variational form. Defaults to 3.
         nrep (int, optional): Number of different random initializations of parameters. Defaults to 1.
+        rngseed (int, optional): The random seed. Defaults to 0.
     """
     # Create the matrix Hamiltonian
     H = bmn2_hamiltonian(L, N, g2N)
@@ -193,12 +195,12 @@ def run_vqe(
 
     # start a quantum instance
     # fix the random seed of the simulator to make values reproducible
-    seed = 50
-    algorithm_globals.random_seed = seed
+    rng = np.random.default_rng(seed=rngseed)
+    algorithm_globals.random_seed = rngseed
     backend = Aer.get_backend(
         "statevector_simulator", max_parallel_threads=6, max_parallel_experiments=0
     )
-    q_instance = QuantumInstance(backend, seed_transpiler=seed, seed_simulator=seed)
+    q_instance = QuantumInstance(backend, seed_transpiler=rngseed, seed_simulator=rngseed)
 
     # initialize optimizers' parameters: number of iterations
     optimizers = {
@@ -229,7 +231,7 @@ def run_vqe(
         counts = []
         values = []
         # initital points
-        random_init = np.random.random(var_form.num_parameters)
+        random_init = rng.random(var_form.num_parameters)
         # Setup the VQE algorithm
         vqe = VQE(
             ansatz=var_form,
@@ -253,8 +255,9 @@ def run_vqe(
     data_types_dict = {"counts": int, "energy": float}
     df = df.explode(["counts", "energy"]).astype(data_types_dict).rename_axis("rep")
     varname = "-".join(varform)
+    g2Nstr = str(g2N).replace(".","")
     outfile = (
-        f"data/miniBMN_convergence_{optimizer}_{varname}_depth{depth}_reps{nrep}.h5"
+        f"data/miniBMN_l{g2Nstr}_convergence_{optimizer}_{varname}_depth{depth}_reps{nrep}.h5"
     )
     print(f"Save results on disk: {outfile}")
     df.to_hdf(outfile, "vqe")
