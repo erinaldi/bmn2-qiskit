@@ -106,6 +106,7 @@ def run_vqe(
     N: int = 2,
     g2N: float = 0.2,
     optimizer: str = "COBYLA",
+    maxit: int = 5000,
     varform: list = ["ry"],
     depth: int = 3,
     nrep: int = 1,
@@ -119,6 +120,7 @@ def run_vqe(
         N (int, optional): Colors for the SU(N) gauge group. Defaults to 2.
         g2N (float, optional): 't Hooft coupling. Defaults to 0.2.
         optimizer (str, optional): VQE classical optimizer. Defaults to "COBYLA".
+        maxit (int, optional): Max number of iterations for the optimizer. Defaults to 5000.
         varform (str, optional): EfficientSU2 rotation gates. Defaults to 'ry'.
         depth (int, optional): Depth of the variational form. Defaults to 3.
         nrep (int, optional): Number of different random initializations of parameters. Defaults to 1.
@@ -150,10 +152,10 @@ def run_vqe(
 
     # initialize optimizers' parameters: number of iterations
     optimizers = {
-        "COBYLA": COBYLA(maxiter=5000),
-        "L-BFGS-B": L_BFGS_B(maxiter=5000),
-        "SLSQP": SLSQP(maxiter=5000),
-        "NELDER-MEAD": NELDER_MEAD(maxiter=5000),
+        "COBYLA": COBYLA(maxiter=maxit),
+        "L-BFGS-B": L_BFGS_B(maxiter=maxit),
+        "SLSQP": SLSQP(maxiter=maxit),
+        "NELDER-MEAD": NELDER_MEAD(maxiter=maxit),
     }
 
     print(f"\nRunning VQE main loop ...")
