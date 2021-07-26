@@ -26,7 +26,7 @@ def bmn2_hamiltonian(L: int = 2, N: int = 2, g2N: float = 0.2):
         g2N (float, optional): The 't Hooft coupling. Defaults to 0.2.
     """
     print(
-        f"Building minimal BMN Hamiltonian for SU({N}) with cutoff={L} and coupling={g2N}\n"
+        f"Building bosonic BMN Hamiltonian for SU({N}) with cutoff={L} and coupling={g2N}\n"
     )
     # The annihilation operator for the single boson
     a_b = diags(np.sqrt(np.linspace(1, L - 1, L - 1)), offsets=1)
