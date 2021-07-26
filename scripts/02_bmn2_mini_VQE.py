@@ -25,7 +25,9 @@ def bmn2_hamiltonian(L: int = 2, N: int = 2, g2N: float = 0.2):
         N (int, optional): The number of colors of a SU(N) gauge group. The degrees of freedom of one matrix will be N^2-1. Defaults to 2.
         g2N (float, optional): The 't Hooft coupling. Defaults to 0.2.
     """
-    print(f"Building minimal BMN Hamiltonian for SU({N}) with cutoff={L} and coupling={g2N}\n")
+    print(
+        f"Building minimal BMN Hamiltonian for SU({N}) with cutoff={L} and coupling={g2N}\n"
+    )
     L = 2  # cutoff for Fock space -> can not go larger than 2 in qiskit without having problems for miniBMN
     # The annihilation operator for the single boson
     a_b = diags(np.sqrt(np.linspace(1, L - 1, L - 1)), offsets=1)
@@ -212,7 +214,9 @@ def run_vqe(
     try:
         optim = optimizers[optimizer]
     except KeyError:
-        print(f"Optimizer {optimizer} not found in our list. Try one of {[x for x in optimizers.keys()]}")
+        print(
+            f"Optimizer {optimizer} not found in our list. Try one of {[x for x in optimizers.keys()]}"
+        )
         return
     results = {"counts": [], "energy": []}
 
@@ -250,7 +254,9 @@ def run_vqe(
     data_types_dict = {"counts": int, "energy": float}
     df = df.explode(["counts", "energy"]).astype(data_types_dict).rename_axis("rep")
     varname = "-".join(varform)
-    outfile = f"data/miniBMN_convergence_{optimizer}_{varname}_depth{depth}_reps{nrep}.h5"
+    outfile = (
+        f"data/miniBMN_convergence_{optimizer}_{varname}_depth{depth}_reps{nrep}.h5"
+    )
     print(f"Save results on disk: {outfile}")
     df.to_hdf(outfile, "vqe")
     # report summary of energy across reps
