@@ -37,3 +37,8 @@ python script/02_bmn2_mini_VQE.py -h
 ```
 
 The data produced is saved in the `data` folder using the binary `HDF5` protocol.
+
+*Note* You can run on multiple threads by using i.e.
+```bash
+export OMP_NUM_THREADS=6; python scripts/02_bmn2_mini_VQE.py --L=2 --N=2 --g2N=0.2 --optimizer='COBYLA' --varform=['ry','rz'] --depth=3 --nrep=10
+```
