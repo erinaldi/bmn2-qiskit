@@ -59,7 +59,7 @@ def bmn2_hamiltonian(L: int = 2, N: int = 2, g2N: float = 0.2):
     for a in a_b_list:
         H_k = H_k + a.conjugate().transpose() * a
     # vacuum energy
-    H_k = H_k + 0.5 * N_bos * identity(L**N_bos)
+    H_k = H_k + 0.5 * N_bos * identity(L ** N_bos)
     # Interaction among bosons
     V_b = (
         x_list[2] * x_list[2] * x_list[3] * x_list[3]
@@ -148,7 +148,9 @@ def run_vqe(
     backend = Aer.get_backend(
         "statevector_simulator", max_parallel_threads=6, max_parallel_experiments=0
     )
-    q_instance = QuantumInstance(backend, seed_transpiler=rngseed, seed_simulator=rngseed)
+    q_instance = QuantumInstance(
+        backend, seed_transpiler=rngseed, seed_simulator=rngseed
+    )
 
     # initialize optimizers' parameters: number of iterations
     optimizers = {
@@ -203,10 +205,8 @@ def run_vqe(
     data_types_dict = {"counts": int, "energy": float}
     df = df.explode(["counts", "energy"]).astype(data_types_dict).rename_axis("rep")
     varname = "-".join(varform)
-    g2Nstr = str(g2N).replace(".","")
-    outfile = (
-        f"data/bosBMN_l{g2Nstr}_convergence_{optimizer}_{varname}_depth{depth}_reps{nrep}.h5"
-    )
+    g2Nstr = str(g2N).replace(".", "")
+    outfile = f"data/bosBMN_l{g2Nstr}_convergence_{optimizer}_{varname}_depth{depth}_reps{nrep}_max{maxit}.h5"
     print(f"Save results on disk: {outfile}")
     df.to_hdf(outfile, "vqe")
     # report summary of energy across reps

@@ -160,6 +160,7 @@ def run_vqe(
     N: int = 2,
     g2N: float = 0.2,
     optimizer: str = "COBYLA",
+    maxit: int = 5000,
     varform: list = ["ry"],
     depth: int = 3,
     nrep: int = 1,
@@ -173,6 +174,7 @@ def run_vqe(
         N (int, optional): Colors for the SU(N) gauge group. Defaults to 2.
         g2N (float, optional): 't Hooft coupling. Defaults to 0.2.
         optimizer (str, optional): VQE classical optimizer. Defaults to "COBYLA".
+        maxit (int, optional): Max number of iterations for the optimizer. Defaults to 5000.
         varform (str, optional): EfficientSU2 rotation gates. Defaults to 'ry'.
         depth (int, optional): Depth of the variational form. Defaults to 3.
         nrep (int, optional): Number of different random initializations of parameters. Defaults to 1.
@@ -200,14 +202,16 @@ def run_vqe(
     backend = Aer.get_backend(
         "statevector_simulator", max_parallel_threads=6, max_parallel_experiments=0
     )
-    q_instance = QuantumInstance(backend, seed_transpiler=rngseed, seed_simulator=rngseed)
+    q_instance = QuantumInstance(
+        backend, seed_transpiler=rngseed, seed_simulator=rngseed
+    )
 
     # initialize optimizers' parameters: number of iterations
     optimizers = {
-        "COBYLA": COBYLA(maxiter=5000),
-        "L-BFGS-B": L_BFGS_B(maxiter=5000),
-        "SLSQP": SLSQP(maxiter=5000),
-        "NELDER-MEAD": NELDER_MEAD(maxiter=5000),
+        "COBYLA": COBYLA(maxiter=maxit),
+        "L-BFGS-B": L_BFGS_B(maxiter=maxit),
+        "SLSQP": SLSQP(maxiter=maxit),
+        "NELDER-MEAD": NELDER_MEAD(maxiter=maxit),
     }
 
     print(f"\nRunning VQE main loop ...")
@@ -255,10 +259,8 @@ def run_vqe(
     data_types_dict = {"counts": int, "energy": float}
     df = df.explode(["counts", "energy"]).astype(data_types_dict).rename_axis("rep")
     varname = "-".join(varform)
-    g2Nstr = str(g2N).replace(".","")
-    outfile = (
-        f"data/miniBMN_l{g2Nstr}_convergence_{optimizer}_{varname}_depth{depth}_reps{nrep}.h5"
-    )
+    g2Nstr = str(g2N).replace(".", "")
+    outfile = f"data/miniBMN_l{g2Nstr}_convergence_{optimizer}_{varname}_depth{depth}_reps{nrep}_max{maxit}.h5"
     print(f"Save results on disk: {outfile}")
     df.to_hdf(outfile, "vqe")
     # report summary of energy across reps
