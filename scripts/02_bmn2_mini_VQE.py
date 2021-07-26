@@ -3,7 +3,6 @@ import time
 import fire
 import numpy as np
 import pandas as pd
-from matplotlib import pyplot as plt
 from scipy.sparse import diags
 from scipy.sparse import identity
 from scipy.sparse import kron
@@ -207,6 +206,7 @@ def run_vqe(
         "NELDER-MEAD": NELDER_MEAD(maxiter=5000),
     }
 
+    print(f"\nRunning VQE main loop ...")
     start_time = time.time()
     optim = optimizers[optimizer]
 
@@ -243,10 +243,19 @@ def run_vqe(
     print(f"Program runtime: {runtime} s")
     # make a dataframe from the results and save it on disk with HDF5
     df = pd.DataFrame.from_dict(results)
+    data_types_dict = {"counts": int, "energy": float}
+    df = df.explode(["counts", "energy"]).astype(data_types_dict).rename_axis("rep")
     varname = "-".join(varform)
-    outfile = f"data/{optimizer}_{varname}_{nrep}.npy"
+    outfile = f"data/convergence_{optimizer}_{varname}_depth{depth}_reps{nrep}.npy"
     print(f"Save results on disk: {outfile}")
     df.to_hdf(outfile, "vqe")
+    # report summary of energy across reps
+    converged = df["energy"].groupby("rep").apply(min).values
+    print(f"Statiscs across {nrep} repetitions:\n-------------------")
+    print(
+        f"Least upper bound: {np.min(converged)}\nWorst upper bound: {np.max(converged)}\nMean bound: {np.mean(converged)}\nStd bound: {np.std(converged)}"
+    )
+    return
 
 
 # %%
