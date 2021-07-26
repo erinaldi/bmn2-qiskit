@@ -28,7 +28,6 @@ def bmn2_hamiltonian(L: int = 2, N: int = 2, g2N: float = 0.2):
     print(
         f"Building minimal BMN Hamiltonian for SU({N}) with cutoff={L} and coupling={g2N}\n"
     )
-    L = 2  # cutoff for Fock space -> can not go larger than 2 in qiskit without having problems for miniBMN
     # The annihilation operator for the single boson
     a_b = diags(np.sqrt(np.linspace(1, L - 1, L - 1)), offsets=1)
     # The identity operator of the Fock space of a single boson

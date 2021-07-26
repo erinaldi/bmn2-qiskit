@@ -16,9 +16,9 @@ from qiskit.utils import algorithm_globals, QuantumInstance
 
 # %%
 def bmn2_hamiltonian(L: int = 2, N: int = 2, g2N: float = 0.2):
-    """Construct the Hamiltonian of the minimal BMN model as a sparse matrix.
+    """Construct the Hamiltonian of the bosonic BMN model as a sparse matrix.
     The cutoff for each boson is L while the 't Hooft coupling in g2N for a gauge group SU(N).
-    The limited number of qubits only let us simulate N=2 and L=2 => for 6 bosons and 3 fermions this is a 9 qubits problem.
+    The limited number of qubits only let us simulate N=2 and L=4 => for 6 bosons this is a 12 qubits problem.
 
     Args:
         L (int, optional): The cutoff of the bosonic modes (the annihilation operators will be LxL matrices). Defaults to 2.
@@ -28,7 +28,6 @@ def bmn2_hamiltonian(L: int = 2, N: int = 2, g2N: float = 0.2):
     print(
         f"Building minimal BMN Hamiltonian for SU({N}) with cutoff={L} and coupling={g2N}\n"
     )
-    L = 2  # cutoff for Fock space -> can not go larger than 2 in qiskit without having problems for miniBMN
     # The annihilation operator for the single boson
     a_b = diags(np.sqrt(np.linspace(1, L - 1, L - 1)), offsets=1)
     # The identity operator of the Fock space of a single boson
