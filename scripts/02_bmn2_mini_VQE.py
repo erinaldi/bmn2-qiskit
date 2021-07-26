@@ -25,6 +25,7 @@ def bmn2_hamiltonian(L: int = 2, N: int = 2, g2N: float = 0.2):
         N (int, optional): The number of colors of a SU(N) gauge group. The degrees of freedom of one matrix will be N^2-1. Defaults to 2.
         g2N (float, optional): The 't Hooft coupling. Defaults to 0.2.
     """
+    print(f"Building minimal BMN Hamiltonian for SU({N}) with cutoff={L} and coupling={g2N}\n")
     L = 2  # cutoff for Fock space -> can not go larger than 2 in qiskit without having problems for miniBMN
     # The annihilation operator for the single boson
     a_b = diags(np.sqrt(np.linspace(1, L - 1, L - 1)), offsets=1)
@@ -208,8 +209,11 @@ def run_vqe(
 
     print(f"\nRunning VQE main loop ...")
     start_time = time.time()
-    optim = optimizers[optimizer]
-
+    try:
+        optim = optimizers[optimizer]
+    except KeyError:
+        print(f"Optimizer {optimizer} not found in our list. Try one of {[x for x in optimizers.keys()]}")
+        return
     results = {"counts": [], "energy": []}
 
     # callback functions to store the counts from each iteration of the VQE
