@@ -1,0 +1,17 @@
+name: qiskit-env
+
+channels:
+  - conda-forge
+
+dependencies:
+  - python
+  - pip
+  - black
+  - numpy
+  - scipy
+  - matplotlib
+  - seaborn
+  - jupyter
+  - pip:
+    - qiskit[visualization]
+    - fire
