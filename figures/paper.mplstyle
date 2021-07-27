@@ -6,5 +6,5 @@ legend.fontsize : 24
 legend.fancybox: True
 lines.linewidth : 3
 lines.markersize : 10
-xtick.labelsize : 16
-ytick.labelsize : 16
+xtick.labelsize : 20
+ytick.labelsize : 20
