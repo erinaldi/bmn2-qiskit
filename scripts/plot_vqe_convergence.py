@@ -88,7 +88,7 @@ def plot_convergence(
     gsdf = pd.DataFrame.from_dict(gs, dtype=float)
     # Plot
     # select the best runs for each optimizer
-    fig, ax = plt.subplots(figsize=(20, 8))
+    fig, ax = plt.subplots()
     for o in optimizers:
         result.loc[o, gsdf[o].idxmin()].plot(
             x="counts", y="energy", xlim=[0, up], label=o, ax=ax
