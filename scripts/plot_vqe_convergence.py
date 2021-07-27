@@ -21,7 +21,7 @@ def read_data(
     Returns:
         pandas.DataFrame: The dataframe collecting the results of the convergence
     """
-    filename = f"{p['f']}/miniBMN_l{p['l']}_convergence_{optimizer}_{p['v']}_depth{p['d']}_reps{p['n']}_max{p['m']}.h5"
+    filename = f"{p['f']}_l{p['l']}_convergence_{optimizer}_{p['v']}_depth{p['d']}_reps{p['n']}_max{p['m']}.h5"
     try:
         df = pd.read_hdf(filename, "vqe")
     except FileNotFoundError as e:
@@ -54,8 +54,7 @@ def plot_convergence(
     varform: list = ["ry"],
     depth: int = 3,
     nrep: int = 10,
-    datafolder: str = "data",
-    figfolder: str = "figures",
+    dataprefix: str = "data/miniBMN",
     ht: float = 0.00328726,
     up: int = 1000,
 ):
@@ -68,7 +67,9 @@ def plot_convergence(
         varform (list, optional): The prametric gates of the variational form. Defaults to ["ry"].
         depth (int, optional): The depth of the variational form. Defaults to 3.
         nrep (int, optional): The number of random initial points used. Defaults to 1.
-        datafolder (str, optional): The data folder of the file. Defaults to "../data".
+        dataprefix (str, optional): The data folder of the file. Defaults to "data/miniBMN".
+        ht (float, optional): The exact truncation data. Defaults to 0.00328726.
+        up (int, optional): The upper limit of iterations to plot. Defaults to 1000.
     """
     # setup parameters
     params = dict()
@@ -77,7 +78,7 @@ def plot_convergence(
     params["v"] = "-".join(varform)
     params["m"] = maxit
     params["n"] = nrep
-    params["f"] = datafolder
+    params["f"] = dataprefix
     assert type(optimizers).__name__ == "list"
     # collect data
     result = collect_data(optimizers, params)
@@ -97,7 +98,8 @@ def plot_convergence(
     ax.set_xlabel("iterations")
     ax.set_ylabel("VQE energy")
     ax.legend(loc="upper right")
-    filename = f"{figfolder}/miniBMN_l{params['l']}_convergence_{params['v']}_depth{params['d']}_nr{params['n']}_max{params['m']}"
+    figprefix = dataprefix.replace("data","figures")
+    filename = f"{figprefix}_l{params['l']}_convergence_{params['v']}_depth{params['d']}_nr{params['n']}_max{params['m']}"
     plt.savefig(f"{filename}.pdf")
     plt.savefig(f"{filename}.png")
     plt.close()

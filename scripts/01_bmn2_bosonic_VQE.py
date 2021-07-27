@@ -206,7 +206,7 @@ def run_vqe(
     df = df.explode(["counts", "energy"]).astype(data_types_dict).rename_axis("rep")
     varname = "-".join(varform)
     g2Nstr = str(g2N).replace(".", "")
-    outfile = f"data/bosBMN_l{g2Nstr}_convergence_{optimizer}_{varname}_depth{depth}_reps{nrep}_max{maxit}.h5"
+    outfile = f"data/bosBMN_L{L}_l{g2Nstr}_convergence_{optimizer}_{varname}_depth{depth}_reps{nrep}_max{maxit}.h5"
     print(f"Save results on disk: {outfile}")
     df.to_hdf(outfile, "vqe")
     # report summary of energy across reps
