@@ -102,6 +102,7 @@ def plot_convergence(
     filename = f"{figprefix}_l{params['l']}_convergence_{params['v']}_depth{params['d']}_nr{params['n']}_max{params['m']}"
     plt.savefig(f"{filename}.pdf")
     plt.savefig(f"{filename}.png")
+    plt.savefig(f"{filename}.svg")
     plt.close()
 
 
