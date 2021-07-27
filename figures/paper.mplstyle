@@ -1,10 +1,10 @@
 figure.figsize: 10, 8
 figure.autolayout: True
 axes.titlesize : 24
-axes.labelsize : 20
+axes.labelsize : 24
 legend.fontsize : 24
 legend.fancybox: True
 lines.linewidth : 3
 lines.markersize : 10
-xtick.labelsize : 20
-ytick.labelsize : 20
+xtick.labelsize : 24
+ytick.labelsize : 24
