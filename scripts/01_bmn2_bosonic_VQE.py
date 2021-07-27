@@ -155,9 +155,9 @@ def run_vqe(
     # initialize optimizers' parameters: number of iterations
     optimizers = {
         "COBYLA": COBYLA(maxiter=maxit),
-        "L-BFGS-B": L_BFGS_B(maxiter=maxit),
+        "L-BFGS-B": L_BFGS_B(maxfun=maxit),
         "SLSQP": SLSQP(maxiter=maxit),
-        "NELDER-MEAD": NELDER_MEAD(maxiter=maxit),
+        "NELDER-MEAD": NELDER_MEAD(maxfev=maxit),
     }
 
     print(f"\nRunning VQE main loop ...")
