@@ -5,8 +5,8 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-plt.style.use("../figures/paper.mplstyle")
-import os, fire
+plt.style.use("figures/paper.mplstyle")
+import sys, fire
 
 # %%
 def read_data(
@@ -22,9 +22,12 @@ def read_data(
         pandas.DataFrame: The dataframe collecting the results of the convergence
     """
     filename = f"{p['f']}/miniBMN_l{p['l']}_convergence_{optimizer}_{p['v']}_depth{p['d']}_reps{p['n']}_max{p['m']}.h5"
-    assert os.path.isfile(filename)
-    return pd.read_hdf(filename, "vqe")
-
+    try:
+        df = pd.read_hdf(filename, "vqe")
+    except FileNotFoundError as e:
+        print(f"{filename} not found. {e}")
+        sys.exit()
+    return df
 
 # %%
 def collect_data(
@@ -51,8 +54,8 @@ def plot_convergence(
     varform: list = ["ry"],
     depth: int = 3,
     nrep: int = 10,
-    datafolder: str = "../data",
-    figfolder: str = "../figures",
+    datafolder: str = "data",
+    figfolder: str = "figures",
     ht: float = 0.00328726,
     up: int = 1000,
 ):
@@ -75,6 +78,7 @@ def plot_convergence(
     params["m"] = maxit
     params["n"] = nrep
     params["f"] = datafolder
+    assert type(optimizers).__name__ == "list"
     # collect data
     result = collect_data(optimizers, params)
     # get best runs
