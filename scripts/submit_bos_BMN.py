@@ -21,14 +21,14 @@ echo ${PJM_O_WORKDIR}
 
 def main():
     # loop over parameters
-    o_values = ["COBYLA","L-BFGS-B","SLSQP","NELDER-MEAD"]
+    o_values = ["COBYLA","L-BFGS-B","SLSQP"]#,"NELDER-MEAD"]
     L_values = np.array([2, 4], dtype=int)
     g2N_values = np.array([0.2, 0.5, 1.0, 2.0], dtype=float)
     gate_values = [['ry'],['ry','rz']]
     depth_values = np.arange(1,11,1)
     nr = 100  # total number of repetitions
     maxit = 10000 # max number of iterations
-    i=0
+
     for L in L_values:
         for g2N in g2N_values:
             for gate in gate_values:
@@ -37,33 +37,30 @@ def main():
                         # create data folder
                         l = str(g2N).replace(".","")
                         v = "-".join(gate)
-                        folder_name = f"{o}L{L}_l{l}_{v}_d{depth}_nr{nr}_max{maxit}"
-                        print(folder_name)
-                        i+=1
-                        # os.makedirs(folder_name, exist_ok=False)
-                        # # move into it
-                        # os.chdir(folder_name)
-                        # print(
-                        #     f"Moving into folder ... {os.path.basename(os.getcwd())}"
-                        # )
-                        # # create bash submit script
-                        # script_name = f"pjrun.sh"
-                        # with open(script_name, "w") as f:
-                        #     f.write(BLOCK)
-                        #     f.write(
-                        #         f"python 01_bmn2_bosonic_VQE.py 100 0 {x:.2f} 0.04 {y:.2f} 50 1 15 15000 1000 50\n"
-                        #     )
+                        folder_name = f"{o}_L{L}_l{l}_{v}_d{depth}_nr{nr}_max{maxit}"
+                        os.makedirs(folder_name, exist_ok=False)
+                        # move into it
+                        os.chdir(folder_name)
+                        print(
+                            f"Moving into folder ... {os.path.basename(os.getcwd())}"
+                        )
+                        # make data folder needed for the python script
+                        os.makedirs("data", exist_ok=True)
+                        # create bash submit script
+                        script_name = f"pjrun.sh"
+                        with open(script_name, "w") as f:
+                            f.write(BLOCK)
+                            f.write(
+                                f"python 01_bmn2_bosonic_VQE.py --L={L} --N=2 --g2N={g2N} --optimizer={o} --varform={gate} --depth={depth} --nrep={nr} --maxit={maxit} --rngseed={depth}\n"
+                            )
 
-                        # if DO_SUBMIT:
-                        #     # submit bash submit script
-                        #     print(subprocess.run(["pjsub", script_name], capture_output=True))
+                        if DO_SUBMIT:
+                            # submit bash submit script
+                            print(subprocess.run(["pjsub", script_name], capture_output=True))
 
-                        # # move back out
-                        # os.chdir("../")
-                        # print(f"... moving back to {os.path.basename(os.getcwd())}")
-    print(i)
+                        # move back out
+                        os.chdir("../")
+                        print(f"... moving back to {os.path.basename(os.getcwd())}")
 
 if __name__ == "__main__":
     main()
-
-    # --L=4 --N=2 --g2N=0.2 --optimizer='NELDER-MEAD' --varform=['ry','rz'] --depth=3 --nrep=10 --maxit=10000
