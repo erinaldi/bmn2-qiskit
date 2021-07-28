@@ -50,6 +50,43 @@ def build_operators(L: int, N: int) -> list:
 
 
 # %%
+def build_gauge_casimir(L: int, N: int):
+    """Generate the gauge generators operators
+
+    Args:
+        L (int): the single site cutoff of the Fock space
+        N (int): the number of colors in the gauge group SU(N)
+
+    Returns:
+        scipy.sparse : The sparse matrix for \sum_i G_i^2
+    """
+    # generate the annihilation operators
+    bosons = build_operators(L, N)
+    # define the generator list for SU(2)
+    g_list = [0] * 3
+    g_list[0] = 1j * (
+        bosons[1].conjugate().transpose() * bosons[2]
+        - bosons[2].conjugate().transpose() * bosons[1]
+        + bosons[4].conjugate().transpose() * bosons[5]
+        - bosons[5].conjugate().transpose() * bosons[4]
+    )
+    g_list[1] = 1j * (
+        bosons[2].conjugate().transpose() * bosons[0]
+        - bosons[0].conjugate().transpose() * bosons[2]
+        + bosons[5].conjugate().transpose() * bosons[3]
+        - bosons[3].conjugate().transpose() * bosons[5]
+    )
+    g_list[2] = 1j * (
+        bosons[0].conjugate().transpose() * bosons[1]
+        - bosons[1].conjugate().transpose() * bosons[0]
+        + bosons[3].conjugate().transpose() * bosons[4]
+        - bosons[4].conjugate().transpose() * bosons[3]
+    )
+
+    return g_list[0] * g_list[0] + g_list[1] * g_list[1] + g_list[2] * g_list[2]
+
+
+# %%
 def bmn2_hamiltonian(L: int = 2, N: int = 2, g2N: float = 0.2):
     """Construct the Hamiltonian of the bosonic BMN model as a sparse matrix.
     The cutoff for each boson is L while the 't Hooft coupling in g2N for a gauge group SU(N).
@@ -118,6 +155,25 @@ def eigenvalues_qiskit(qOp: MatrixOp, k: int = 10):
 
 
 # %%
+def check_expectation(H, O, k: int = 1):
+    """Compute the lowest k eigenstates of a sparse symmetric matrix H
+    and then compute the expectation value of O.
+
+    Args:
+        H (scipy.sparse matrix): The Hamiltonian in the form of a sparse matrix
+        O (scipy.sparse matrix): The operator to "measure" in the form of a sparse matrix
+        k (int): The number of lowest eigenstates to compute. Defaults to 1.
+    """
+    _, eigk = eigsh(H, k, which="SA", return_eigenvectors=True, tol=0)
+    expect = []
+    for i in np.arange(k):
+        bra = eigk[:,i].conjugate().transpose()
+        ket = eigk[:,i]
+        expect.append(bra.dot(O.dot(ket)))
+    return np.real(np.array(expect))
+
+
+# %%
 def run_vqe(
     L: int = 2,
     N: int = 2,
@@ -126,8 +182,9 @@ def run_vqe(
     maxit: int = 5000,
     varform: list = ["ry"],
     depth: int = 3,
-    nrep: int = 1,
+    nrep: int = 10,
     rngseed: int = 0,
+    G2: bool = False,
     h5: bool = True,
 ):
     """Run the main VQE solver for a bosonic BMN Hamiltonian where bosons are LxL matrices and the 't Hooft coupling is g2N for a SU(N) gauge group.
@@ -143,6 +200,7 @@ def run_vqe(
         depth (int, optional): Depth of the variational form. Defaults to 3.
         nrep (int, optional): Number of different random initializations of parameters. Defaults to 1.
         rngseed (int, optional): The random seed. Defaults to 0.
+        G2 (bool, optional): The flag to compute the expectation value of the gauge Casimir. Defaults to False.
         h5 (bool, optional): The flag to save in HDF5 format. Defaults to True.
     """
     # Create the matrix Hamiltonian
@@ -154,6 +212,11 @@ def run_vqe(
     print(
         f"Exact Result of discrete hamiltonian (qubit): {eigenvalues_qiskit(qubitOp)}"
     )
+    # create the gauge casimir and check it if requested
+    if G2:
+        G = build_gauge_casimir(L,N)
+        print(f"Exact Result of Casimir on GS (matrix): {check_expectation(H,G)}")
+        gOp = MatrixOp(primitive=G)
 
     # Next, we create the variational form.
     var_form = EfficientSU2(
@@ -188,7 +251,9 @@ def run_vqe(
             f"Optimizer {optimizer} not found in our list. Try one of {[x for x in optimizers.keys()]}"
         )
         return
-    results = {"counts": [], "energy": []}
+
+    results = {"counts": [], "energy": [], "casimir": []}
+    casimir_result = 'NaN'  # initialize to NaN since it will not be defined if we do not measure it
 
     # callback functions to store the counts from each iteration of the VQE
     def store_intermediate_result(eval_count, parameters, mean, std):
@@ -209,17 +274,25 @@ def run_vqe(
             quantum_instance=q_instance,
             callback=store_intermediate_result,
         )
-        # run the VQE with out Hamiltonian operator
-        result = vqe.compute_minimum_eigenvalue(qubitOp)
-        vqe_result = np.real(result.eigenvalue)
-        print(f"[{i}] - {varform} - [{optimizer}]: VQE gs energy: {vqe_result}")
+        # run the VQE with our Hamiltonian operator
+        if G2:
+            result = vqe.compute_minimum_eigenvalue(qubitOp,aux_operators=[gOp])
+            vqe_result = np.real(result.eigenvalue)
+            casimir_result = np.real(result.aux_operator_eigenvalues[0,0])
+            print(f"[{i}] - {varform} - [{optimizer}]: VQE gs energy: {vqe_result} | VQE gs gauge casimir: {casimir_result}")
+        else:
+            result = vqe.compute_minimum_eigenvalue(qubitOp)
+            vqe_result = np.real(result.eigenvalue)
+            print(f"[{i}] - {varform} - [{optimizer}]: VQE gs energy: {vqe_result}")
+        # collect results
         results["counts"].append(counts)
         results["energy"].append(values)
+        results["casimir"].append(casimir_result)
 
     end_time = time.time()
     runtime = end_time - start_time
     print(f"Program runtime: {runtime} s")
-    # make a dataframe from the results and save it on disk with HDF5
+    # make a dataframe from the results
     df = pd.DataFrame.from_dict(results)
     data_types_dict = {"counts": int, "energy": float}
     df = df.explode(["counts", "energy"]).astype(data_types_dict).rename_axis("rep")
@@ -240,7 +313,7 @@ def run_vqe(
         outfile = f"data/bosBMN_L{L}_l{g2Nstr}_convergence_{optimizer}_{varname}_depth{depth}_reps{nrep}_max{maxit}.gz"
         print(f"Save results on disk: {outfile}")
         df.to_pickle(outfile)
-    return
+    return df
 
 
 # %%
