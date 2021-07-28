@@ -204,17 +204,20 @@ def run_vqe(
     df = pd.DataFrame.from_dict(results)
     data_types_dict = {"counts": int, "energy": float}
     df = df.explode(["counts", "energy"]).astype(data_types_dict).rename_axis("rep")
-    varname = "-".join(varform)
-    g2Nstr = str(g2N).replace(".", "")
-    outfile = f"data/bosBMN_L{L}_l{g2Nstr}_convergence_{optimizer}_{varname}_depth{depth}_reps{nrep}_max{maxit}.h5"
-    print(f"Save results on disk: {outfile}")
-    df.to_hdf(outfile, "vqe")
     # report summary of energy across reps
     converged = df["energy"].groupby("rep").apply(min).values
     print(f"Statistics across {nrep} repetitions:\n-------------------")
     print(
         f"Least upper bound: {np.min(converged)}\nWorst upper bound: {np.max(converged)}\nMean bound: {np.mean(converged)}\nStd bound: {np.std(converged)}"
     )
+    # save results on disk
+    varname = "-".join(varform)
+    g2Nstr = str(g2N).replace(".", "")
+    # outfile = f"data/bosBMN_L{L}_l{g2Nstr}_convergence_{optimizer}_{varname}_depth{depth}_reps{nrep}_max{maxit}.h5"
+    print(f"Save results on disk: {outfile}")
+    # df.to_hdf(outfile, "vqe")
+    outfile = f"data/bosBMN_L{L}_l{g2Nstr}_convergence_{optimizer}_{varname}_depth{depth}_reps{nrep}_max{maxit}.gz"
+    df.to_pickle(outfile)
     return
 
 
