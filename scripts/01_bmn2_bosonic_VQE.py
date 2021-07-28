@@ -214,9 +214,10 @@ def run_vqe(
     varname = "-".join(varform)
     g2Nstr = str(g2N).replace(".", "")
     # outfile = f"data/bosBMN_L{L}_l{g2Nstr}_convergence_{optimizer}_{varname}_depth{depth}_reps{nrep}_max{maxit}.h5"
-    print(f"Save results on disk: {outfile}")
+    # print(f"Save results on disk: {outfile}")
     # df.to_hdf(outfile, "vqe")
     outfile = f"data/bosBMN_L{L}_l{g2Nstr}_convergence_{optimizer}_{varname}_depth{depth}_reps{nrep}_max{maxit}.gz"
+    print(f"Save results on disk: {outfile}")
     df.to_pickle(outfile)
     return
 
