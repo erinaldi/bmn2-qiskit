@@ -165,6 +165,7 @@ def run_vqe(
     depth: int = 3,
     nrep: int = 1,
     rngseed: int = 0,
+    h5: bool = True,
 ):
     """Run the main VQE solver for a minimal BMN Hamiltonian where bosons are LxL matrices and the 't Hooft coupling is g2N for a SU(N) gauge group.
     The VQE is initialized with a specific optimizer and a specific variational quantum circuit based on EfficientSU2.
@@ -179,6 +180,7 @@ def run_vqe(
         depth (int, optional): Depth of the variational form. Defaults to 3.
         nrep (int, optional): Number of different random initializations of parameters. Defaults to 1.
         rngseed (int, optional): The random seed. Defaults to 0.
+        h5 (bool, optional): The flag to save in HDF5 format. Defaults to True.
     """
     # Create the matrix Hamiltonian
     H = bmn2_hamiltonian(L, N, g2N)
@@ -235,7 +237,7 @@ def run_vqe(
         counts = []
         values = []
         # initital points for the angles of the rotation gates
-        random_init = rng.uniform(-2*np.pi,2*np.pi,var_form.num_parameters)
+        random_init = rng.uniform(-2 * np.pi, 2 * np.pi, var_form.num_parameters)
         # Setup the VQE algorithm
         vqe = VQE(
             ansatz=var_form,
@@ -267,12 +269,14 @@ def run_vqe(
     # save on disk
     varname = "-".join(varform)
     g2Nstr = str(g2N).replace(".", "")
-    # outfile = f"data/miniBMN_L{L}_l{g2Nstr}_convergence_{optimizer}_{varname}_depth{depth}_reps{nrep}_max{maxit}.h5"
-    # print(f"Save results on disk: {outfile}")
-    # df.to_hdf(outfile, "vqe")
-    outfile = f"data/miniBMN_L{L}_l{g2Nstr}_convergence_{optimizer}_{varname}_depth{depth}_reps{nrep}_max{maxit}.gz"
-    print(f"Save results on disk: {outfile}")
-    df.to_pickle(outfile)
+    if h5:
+        outfile = f"data/miniBMN_L{L}_l{g2Nstr}_convergence_{optimizer}_{varname}_depth{depth}_reps{nrep}_max{maxit}.h5"
+        print(f"Save results on disk: {outfile}")
+        df.to_hdf(outfile, "vqe")
+    else:
+        outfile = f"data/miniBMN_L{L}_l{g2Nstr}_convergence_{optimizer}_{varname}_depth{depth}_reps{nrep}_max{maxit}.gz"
+        print(f"Save results on disk: {outfile}")
+        df.to_pickle(outfile)
     return
 
 

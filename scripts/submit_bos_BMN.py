@@ -19,15 +19,16 @@ cp $HOME/Code/bmn2-qiskit/scripts/01_bmn2_bosonic_VQE.py ${PJM_O_WORKDIR}/.
 echo ${PJM_O_WORKDIR}
 """
 
+
 def main():
     # loop over parameters
-    o_values = ["COBYLA","L-BFGS-B","SLSQP"]#,"NELDER-MEAD"]
+    o_values = ["COBYLA", "L-BFGS-B", "SLSQP"]  # ,"NELDER-MEAD"]
     L_values = np.array([2, 4], dtype=int)
     g2N_values = np.array([0.2, 0.5, 1.0, 2.0], dtype=float)
-    gate_values = [['ry'],['ry','rz']]
-    depth_values = np.arange(1,11,1)
+    gate_values = [["ry"], ["ry", "rz"]]
+    depth_values = np.arange(1, 11, 1)
     nr = 100  # total number of repetitions
-    maxit = 10000 # max number of iterations
+    maxit = 10000  # max number of iterations
 
     for L in L_values:
         for g2N in g2N_values:
@@ -35,15 +36,13 @@ def main():
                 for depth in depth_values:
                     for o in o_values:
                         # create data folder
-                        l = str(g2N).replace(".","")
+                        l = str(g2N).replace(".", "")
                         v = "-".join(gate)
                         folder_name = f"{o}_L{L}_l{l}_{v}_d{depth}_nr{nr}_max{maxit}"
                         os.makedirs(folder_name, exist_ok=False)
                         # move into it
                         os.chdir(folder_name)
-                        print(
-                            f"Moving into folder ... {os.path.basename(os.getcwd())}"
-                        )
+                        print(f"Moving into folder ... {os.path.basename(os.getcwd())}")
                         # make data folder needed for the python script
                         os.makedirs("data", exist_ok=True)
                         # create bash submit script
@@ -56,11 +55,16 @@ def main():
 
                         if DO_SUBMIT:
                             # submit bash submit script
-                            print(subprocess.run(["pjsub", script_name], capture_output=True))
+                            print(
+                                subprocess.run(
+                                    ["pjsub", script_name], capture_output=True
+                                )
+                            )
 
                         # move back out
                         os.chdir("../")
                         print(f"... moving back to {os.path.basename(os.getcwd())}")
+
 
 if __name__ == "__main__":
     main()

@@ -29,6 +29,7 @@ def read_data(
         sys.exit()
     return df
 
+
 # %%
 def collect_data(
     optimizers: list,
@@ -87,7 +88,7 @@ def plot_convergence(
     for r in optimizers:
         gs[r] = result.loc[r].groupby("rep").apply(min).energy
     gsdf = pd.DataFrame.from_dict(gs, dtype=float)
-    print(gsdf.describe().T[["min","max","mean","std"]])
+    print(gsdf.describe().T[["min", "max", "mean", "std"]])
     # Plot
     # select the best runs for each optimizer
     fig, ax = plt.subplots()
@@ -99,7 +100,7 @@ def plot_convergence(
     ax.set_xlabel("iterations")
     ax.set_ylabel("VQE energy")
     ax.legend(loc="upper right")
-    figprefix = dataprefix.replace("data","figures")
+    figprefix = dataprefix.replace("data", "figures")
     filename = f"{figprefix}_l{params['l']}_convergence_{params['v']}_depth{params['d']}_nr{params['n']}_max{params['m']}"
     plt.savefig(f"{filename}.pdf")
     plt.savefig(f"{filename}.png")
