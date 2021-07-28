@@ -6,14 +6,14 @@ DO_SUBMIT = True
 BLOCK = """#!/bin/bash
 #PJM -L rscgrp=batch
 #PJM -L vnode=1
-#PJM -L vnode-core=4
-#PJM -L elapse=10:00:00
+#PJM -L vnode-core=8
+#PJM -L elapse=23:59:00
 #PJM -g Q21550
 #PJM -o output.log
 #PJM -j
 source $HOME/.bashrc
 conda activate qiskit-env
-export OMP_NUM_THREADS=4
+export OMP_NUM_THREADS=8
 # copy script in case you want to modify it
 cp $HOME/Code/bmn2-qiskit/scripts/02_bmn2_mini_VQE.py ${PJM_O_WORKDIR}/.
 echo ${PJM_O_WORKDIR}
@@ -25,7 +25,7 @@ def main():
     o_values = ["COBYLA", "L-BFGS-B", "SLSQP"]  # ,"NELDER-MEAD"]
     L_values = np.array([2], dtype=int)
     g2N_values = np.array([0.2, 0.5, 1.0, 2.0], dtype=float)
-    gate_values = [["ry"], ["ry", "rz"]]
+    gate_values = [["ry"], ["ry","rz"]]
     depth_values = np.arange(1, 11, 1)
     nr = 100  # total number of repetitions
     maxit = 10000  # max number of iterations
