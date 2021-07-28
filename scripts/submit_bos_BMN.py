@@ -2,7 +2,7 @@ import os
 import subprocess
 import numpy as np
 
-DO_SUBMIT = False
+DO_SUBMIT = True
 BLOCK = """#!/bin/bash
 #PJM -L rscgrp=batch
 #PJM -L vnode=1
@@ -50,7 +50,7 @@ def main():
                         with open(script_name, "w") as f:
                             f.write(BLOCK)
                             f.write(
-                                f"python 01_bmn2_bosonic_VQE.py --L={L} --N=2 --g2N={g2N} --optimizer={o} --varform={gate} --depth={depth} --nrep={nr} --maxit={maxit} --rngseed={depth}\n"
+                                f"python 01_bmn2_bosonic_VQE.py --L={L} --N=2 --g2N={g2N} --optimizer={o} --varform={gate} --depth={depth} --nrep={nr} --maxit={maxit} --rngseed={depth} --h5=False\n"
                             )
 
                         if DO_SUBMIT:
