@@ -234,8 +234,8 @@ def run_vqe(
     for i in np.arange(nrep):
         counts = []
         values = []
-        # initital points
-        random_init = rng.random(var_form.num_parameters)
+        # initital points for the angles of the rotation gates
+        random_init = rng.uniform(-2*np.pi,2*np.pi,var_form.num_parameters)
         # Setup the VQE algorithm
         vqe = VQE(
             ansatz=var_form,
