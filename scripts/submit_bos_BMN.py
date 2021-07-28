@@ -2,7 +2,7 @@ import os
 import subprocess
 import numpy as np
 
-DO_SUBMIT = True
+DO_SUBMIT = False
 BLOCK = """#!/bin/bash
 #PJM -L rscgrp=batch
 #PJM -L vnode=1
@@ -25,7 +25,7 @@ def main():
     o_values = ["COBYLA", "L-BFGS-B", "SLSQP"]  # ,"NELDER-MEAD"]
     L_values = np.array([2, 4], dtype=int)
     g2N_values = np.array([0.2, 0.5, 1.0, 2.0], dtype=float)
-    gate_values = [["ry"], ["ry","rz"]]
+    gate_values = [['ry'],['ry','rz']]
     depth_values = np.arange(1, 11, 1)
     nr = 100  # total number of repetitions
     maxit = 10000  # max number of iterations
@@ -47,10 +47,11 @@ def main():
                         os.makedirs("data", exist_ok=True)
                         # create bash submit script
                         script_name = f"pjrun.sh"
+                        v = str(gate).replace(' ','')
                         with open(script_name, "w") as f:
                             f.write(BLOCK)
                             f.write(
-                                f"python 01_bmn2_bosonic_VQE.py --L={L} --N=2 --g2N={g2N} --optimizer={o} --varform={gate} --depth={depth} --nrep={nr} --maxit={maxit} --rngseed={depth} --h5=False\n"
+                                f"python 01_bmn2_bosonic_VQE.py --L={L} --N=2 --g2N={g2N} --optimizer={o} --varform={v} --depth={depth} --nrep={nr} --maxit={maxit} --rngseed={depth} --h5=False\n"
                             )
 
                         if DO_SUBMIT:

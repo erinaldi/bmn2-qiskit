@@ -47,10 +47,11 @@ def main():
                         os.makedirs("data", exist_ok=True)
                         # create bash submit script
                         script_name = f"pjrun.sh"
+                        v = str(gate).replace(' ','')
                         with open(script_name, "w") as f:
                             f.write(BLOCK)
                             f.write(
-                                f"python 02_bmn2_mini_VQE.py --L={L} --N=2 --g2N={g2N} --optimizer={o} --varform={gate} --depth={depth} --nrep={nr} --maxit={maxit} --rngseed={depth} --h5=False\n"
+                                f"python 02_bmn2_mini_VQE.py --L={L} --N=2 --g2N={g2N} --optimizer={o} --varform={v} --depth={depth} --nrep={nr} --maxit={maxit} --rngseed={depth} --h5=False\n"
                             )
 
                         if DO_SUBMIT:
