@@ -14,20 +14,18 @@ from qiskit.algorithms import NumPyEigensolver, VQE
 from qiskit.algorithms.optimizers import SLSQP, COBYLA, L_BFGS_B, NELDER_MEAD
 from qiskit.utils import algorithm_globals, QuantumInstance
 
+
 # %%
-def bmn2_hamiltonian(L: int = 2, N: int = 2, g2N: float = 0.2):
-    """Construct the Hamiltonian of the bosonic BMN model as a sparse matrix.
-    The cutoff for each boson is L while the 't Hooft coupling in g2N for a gauge group SU(N).
-    The limited number of qubits only let us simulate N=2 and L=4 => for 6 bosons this is a 12 qubits problem.
+def build_operators(L: int, N: int) -> list:
+    """Generate all the annihilation operators needed to build the hamiltonian
 
     Args:
-        L (int, optional): The cutoff of the bosonic modes (the annihilation operators will be LxL matrices). Defaults to 2.
-        N (int, optional): The number of colors of a SU(N) gauge group. The degrees of freedom of one matrix will be N^2-1. Defaults to 2.
-        g2N (float, optional): The 't Hooft coupling. Defaults to 0.2.
+        L (int): the cutoff of the single site Fock space
+        N (int): the number of colors of gauge group SU(N)
+
+    Returns:
+        list: a list of annihilation operators, length=N_bos
     """
-    print(
-        f"Building bosonic BMN Hamiltonian for SU({N}) with cutoff={L} and coupling={g2N}\n"
-    )
     # The annihilation operator for the single boson
     a_b = diags(np.sqrt(np.linspace(1, L - 1, L - 1)), offsets=1)
     # The identity operator of the Fock space of a single boson
@@ -48,6 +46,25 @@ def bmn2_hamiltonian(L: int = 2, N: int = 2, g2N: float = 0.2):
             a_b_list[i] = kron(
                 a_b_list[i], a
             )  # do the outer product between each operator_list element
+    return a_b_list
+
+
+# %%
+def bmn2_hamiltonian(L: int = 2, N: int = 2, g2N: float = 0.2):
+    """Construct the Hamiltonian of the bosonic BMN model as a sparse matrix.
+    The cutoff for each boson is L while the 't Hooft coupling in g2N for a gauge group SU(N).
+    The limited number of qubits only let us simulate N=2 and L=4 => for 6 bosons this is a 12 qubits problem.
+
+    Args:
+        L (int, optional): The cutoff of the bosonic modes (the annihilation operators will be LxL matrices). Defaults to 2.
+        N (int, optional): The number of colors of a SU(N) gauge group. The degrees of freedom of one matrix will be N^2-1. Defaults to 2.
+        g2N (float, optional): The 't Hooft coupling. Defaults to 0.2.
+    """
+    print(
+        f"Building bosonic BMN Hamiltonian for SU({N}) with cutoff={L} and coupling={g2N}\n"
+    )
+    a_b_list = build_operators(L,N)
+    N_bos = int(2 * (N ** 2 - 1))  # number of boson sites -> FIXED for mini-BMN 2
     # Build the Hamiltonian
     # Start piece by piece
     x_list = []
