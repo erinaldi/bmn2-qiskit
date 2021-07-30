@@ -313,7 +313,7 @@ def run_vqe(
         outfile = f"data/bosBMN_L{L}_l{g2Nstr}_convergence_{optimizer}_{varname}_depth{depth}_reps{nrep}_max{maxit}.gz"
         print(f"Save results on disk: {outfile}")
         df.to_pickle(outfile)
-    return df
+    return
 
 
 # %%
