@@ -39,7 +39,11 @@ def main():
                         l = str(g2N).replace(".", "")
                         v = "-".join(gate)
                         folder_name = f"{o}_L{L}_l{l}_{v}_d{depth}_nr{nr}_max{maxit}"
-                        os.makedirs(folder_name, exist_ok=False)
+                        try:
+                            os.makedirs(folder_name, exist_ok=False)
+                        except FileExistsError:
+                            print(f"Folder {folder_name} exists. Skipping...")
+                            continue
                         # move into it
                         os.chdir(folder_name)
                         print(f"Moving into folder ... {os.path.basename(os.getcwd())}")
