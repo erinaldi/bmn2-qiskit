@@ -1,12 +1,12 @@
 # %%
 import pandas as pd
 import matplotlib
-
-matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-
+import os
+import sys
+import fire
+matplotlib.use("Agg")
 plt.style.use("figures/paper.mplstyle")
-import sys, fire
 
 # %%
 def read_data(
@@ -21,12 +21,15 @@ def read_data(
     Returns:
         pandas.DataFrame: The dataframe collecting the results of the convergence
     """
-    filename = f"{p['f']}_l{p['l']}_convergence_{optimizer}_{p['v']}_depth{p['d']}_reps{p['n']}_max{p['m']}.h5"
-    try:
-        df = pd.read_hdf(filename, "vqe")
-    except FileNotFoundError as e:
-        print(f"{filename} not found. {e}")
+    filename = f"{p['f']}_l{p['l']}_convergence_{optimizer}_{p['v']}_depth{p['d']}_reps{p['n']}_max{p['m']}.{p['s']}"
+    if not os.path.isfile(filename):
+        print(f"{filename} does not exist.")
         sys.exit()
+    if p['s'] == 'h5':
+        df = pd.read_hdf(filename, "vqe")
+    if p['s'] == 'gz':
+        df = pd.read_pickle(filename)
+
     return df
 
 
@@ -56,7 +59,9 @@ def plot_convergence(
     depth: int = 3,
     nrep: int = 10,
     dataprefix: str = "data/miniBMN",
-    ht: float = 0.00328726,
+    datasuffix: str = "h5",
+    figprefix: str = "figures/miniBMN",
+    ht: float = 0.0,
     up: int = 1000,
 ):
     """Read the VQE convergence data for the mini BMN model from disk
@@ -69,7 +74,9 @@ def plot_convergence(
         depth (int, optional): The depth of the variational form. Defaults to 3.
         nrep (int, optional): The number of random initial points used. Defaults to 1.
         dataprefix (str, optional): The data folder of the file. Defaults to "data/miniBMN".
-        ht (float, optional): The exact truncation data. Defaults to 0.00328726.
+        datasuffix (str, optional): The data file extension. Defaults to "h5".
+        figprefix (str, optional): The output folder and name prefix for the figure. Defaults to "figures/miniBMN".
+        ht (float, optional): The exact truncation data. Defaults to 0.0.
         up (int, optional): The upper limit of iterations to plot. Defaults to 1000.
     """
     # setup parameters
@@ -80,6 +87,7 @@ def plot_convergence(
     params["m"] = maxit
     params["n"] = nrep
     params["f"] = dataprefix
+    params["s"] = datasuffix
     assert type(optimizers).__name__ == "list"
     # collect data
     result = collect_data(optimizers, params)
@@ -100,8 +108,7 @@ def plot_convergence(
     ax.set_xlabel("iterations")
     ax.set_ylabel("VQE energy")
     ax.legend(loc="upper right")
-    figprefix = dataprefix.replace("data", "figures")
-    filename = f"{figprefix}_l{params['l']}_convergence_{params['v']}_depth{params['d']}_nr{params['n']}_max{params['m']}"
+    filename = f"{figprefix}_l{params['l']}_convergence_{params['v']}_depth{params['d']}_nr{params['n']}_max{params['m']}_xlim{up}"
     plt.savefig(f"{filename}.pdf")
     plt.savefig(f"{filename}.png")
     plt.savefig(f"{filename}.svg")
