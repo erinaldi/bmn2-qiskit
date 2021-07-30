@@ -7,7 +7,7 @@ BLOCK = """#!/bin/bash
 #PJM -L rscgrp=batch
 #PJM -L vnode=1
 #PJM -L vnode-core=8
-#PJM -L elapse=23:59:00
+#PJM -L elapse=71:59:00
 #PJM -g Q21550
 #PJM -o output.log
 #PJM -j
@@ -25,7 +25,7 @@ def main():
     o_values = ["COBYLA", "L-BFGS-B", "SLSQP"]  # ,"NELDER-MEAD"]
     L_values = np.array([2], dtype=int)
     g2N_values = np.array([0.2, 0.5, 1.0, 2.0], dtype=float)
-    gate_values = [["ry"], ["ry","rz"]]
+    gate_values = [['ry'], ['ry','rz']]
     depth_values = np.arange(1, 11, 1)
     nr = 100  # total number of repetitions
     maxit = 10000  # max number of iterations
@@ -39,7 +39,11 @@ def main():
                         l = str(g2N).replace(".", "")
                         v = "-".join(gate)
                         folder_name = f"{o}_L{L}_l{l}_{v}_d{depth}_nr{nr}_max{maxit}"
-                        os.makedirs(folder_name, exist_ok=False)
+                        try:
+                            os.makedirs(folder_name, exist_ok=False)
+                        except FileExistsError:
+                            print(f"Folder {folder_name} exists. Skipping...")
+                            continue
                         # move into it
                         os.chdir(folder_name)
                         print(f"Moving into folder ... {os.path.basename(os.getcwd())}")

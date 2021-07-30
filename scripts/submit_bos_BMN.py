@@ -7,7 +7,7 @@ BLOCK = """#!/bin/bash
 #PJM -L rscgrp=batch
 #PJM -L vnode=1
 #PJM -L vnode-core=8
-#PJM -L elapse=23:59:00
+#PJM -L elapse=71:59:00
 #PJM -g Q21550
 #PJM -o output.log
 #PJM -j
