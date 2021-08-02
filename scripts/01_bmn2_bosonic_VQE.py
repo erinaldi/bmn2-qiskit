@@ -246,6 +246,7 @@ def run_vqe(
     start_time = time.time()
     try:
         optim = optimizers[optimizer]
+        print(f"{optimizer} settings: {optim.settings}")
     except KeyError:
         print(
             f"Optimizer {optimizer} not found in our list. Try one of {[x for x in optimizers.keys()]}"
