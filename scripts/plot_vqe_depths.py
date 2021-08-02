@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import os
 import sys
 import fire
+
 matplotlib.use("Agg")
 plt.style.use("figures/paper.mplstyle")
 
@@ -25,12 +26,12 @@ def read_data(
     if not os.path.isfile(filename):
         print(f"{filename} does not exist.")
         sys.exit()
-    if p['s'] == 'h5':
+    if p["s"] == "h5":
         df = pd.read_hdf(filename, "vqe")
-    if p['s'] == 'gz':
+    if p["s"] == "gz":
         df = pd.read_pickle(filename)
 
-    return df[df.counts<=p['m']]
+    return df[df.counts <= p["m"]]
 
 
 # %%
@@ -85,19 +86,19 @@ def plot_depths(
     params["s"] = datasuffix
     assert type(optimizers).__name__ == "list"
     # collect data
-    depths = [1,2,3,4,5,6,7,8,9]
+    depths = [1, 2, 3, 4, 5, 6, 7, 8, 9]
     ds = dict()
     for d in depths:
         params["d"] = d
-        res = collect_data(optimizers,params)
-        ds[d] = res.groupby('Optimizer').apply(min).energy
-    dfds = pd.DataFrame.from_dict(ds,orient='index',dtype=float).rename_axis("depth")
+        res = collect_data(optimizers, params)
+        ds[d] = res.groupby("Optimizer").apply(min).energy
+    dfds = pd.DataFrame.from_dict(ds, orient="index", dtype=float).rename_axis("depth")
     dfds.style.set_properties(precision=5)  # change the precision of the output
     print(dfds)
     # Plot
     fig, ax = plt.subplots()
-    dfds.plot(marker="o", ylim=[0,0.2], ax=ax)
-    ax.axhline(ht,c="k",ls="--",lw="2",label="HT")
+    dfds.plot(marker="o", ax=ax)
+    ax.axhline(ht, c="k", ls="--", lw="2", label="HT")
     ax.set_ylabel("VQE energy")
     ax.set_xlabel("Depth")
     ax.legend(loc="upper right")
