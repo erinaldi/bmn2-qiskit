@@ -30,7 +30,7 @@ def read_data(
     if p['s'] == 'gz':
         df = pd.read_pickle(filename)
 
-    return df
+    return df[df.counts<=p['m']]
 
 
 # %%
