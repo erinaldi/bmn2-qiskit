@@ -1,11 +1,14 @@
-# Bosonic and Supersymmetric Minimal BMN solved with QISKIT
+# Bosonic and Supersymmetric BMN models solved with QISKIT
 
-Use the Variational Quantum Eigensolver in [`QISKIT`](www.qiskit.org) to find the ground state of the quantum BMN matrix model with gauge group SU(2) at different 't Hooft couplings.
+Use the Variational Quantum Eigensolver in [`QISKIT`](www.qiskit.org) to find the ground state of the quantum 2-matrix model with gauge group SU(2) at different 't Hooft couplings.
+We consider a purely bosonic model and a supersymmetric model (*minimal BMN*).
+Results are reported in the publication [Rinaldi et al. (2021)](www.arxiv.org/abs/2108.00000).
+Consider the citation in [Cite](#cite).
 
 ## Setup
 
 Install the [`conda`](https://docs.conda.io/projects/conda/en/latest/user-guide/getting-started.html) environment manager for python and create a new environment for this project:
-```shell
+```bash
 conda env create -f environment.yml
 ```
 
@@ -15,7 +18,7 @@ Check that the environment exists
 conda env list
 ```
 and then activate it
-```shell
+```bash
 conda activate qiskit-env
 ```
 
@@ -36,9 +39,16 @@ or
 python script/02_bmn2_mini_VQE.py -h
 ```
 
-The data produced is saved in the `data` folder using the binary `HDF5` protocol.
+The data produced is saved in the `data` folder using the binary `HDF5` protocol (with one command line flag you can save in `pickle` compressed format).
 
-*Note* You can run on multiple threads by using i.e.
+**Note**: You can run on multiple threads by using i.e.
 ```bash
 export OMP_NUM_THREADS=6; python scripts/02_bmn2_mini_VQE.py --L=2 --N=2 --g2N=0.2 --optimizer='COBYLA' --varform=['ry','rz'] --depth=3 --nrep=10
+```
+
+# Cite
+
+If you use this code (or parts of it), please consider citing our paper:
+```
+BIBTEX CITATION HERE
 ```
