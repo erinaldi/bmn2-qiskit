@@ -5,7 +5,9 @@ We consider a purely bosonic model and a supersymmetric model (*minimal BMN*).
 Results are reported in the publication [Rinaldi et al. (2021)](www.arxiv.org/abs/2108.00000).
 Consider the citation in [Cite](#cite).
 
-## Setup
+# Code
+
+## Installation
 
 Install the [`conda`](https://docs.conda.io/projects/conda/en/latest/user-guide/getting-started.html) environment manager for python and create a new environment for this project:
 ```bash
@@ -22,9 +24,7 @@ and then activate it
 conda activate qiskit-env
 ```
 
-## Code
-
-The notebooks in [`notebooks`](./notebooks) can be used as a starting point to understand the code.
+## Scripts
 
 For making plots and datafiles, you can also use the python scripts in the [`scripts`](./scripts) folder.
 
@@ -46,8 +46,14 @@ The data produced is saved in the `data` folder using the binary `HDF5` protocol
 export OMP_NUM_THREADS=6; python scripts/02_bmn2_mini_VQE.py --L=2 --N=2 --g2N=0.2 --optimizer='COBYLA' --varform=['ry','rz'] --depth=3 --nrep=10
 ```
 
-The `scripts/hokusai` folder is for submitting jobs on the RIKEN Hokusai cluster.
+The [`scripts/hokusai`](./scripts/hokusai) folder is for scripts managing the submission of jobs on the RIKEN Hokusai cluster in Wako, Japan.
+
 There are also utility scripts for making plots.
+
+## Notebooks
+
+The notebooks in [`notebooks`](./notebooks) can be used as a starting point to understand the code.
+
 
 # Cite
 
