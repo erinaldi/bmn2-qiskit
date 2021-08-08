@@ -54,6 +54,8 @@ There are also utility scripts for making plots.
 
 The notebooks in [`notebooks`](./notebooks) can be used as a starting point to understand the code.
 
+* The notebook [QISKIT_HarmonicOscillator_VQE.ipynb](./notebooks/QISKIT_HarmonicOscillator_VQE.ipynb) gives an introduction to the VQE for a simple harmonic oscillator in the coordinate basis. [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1Jk1cHXoSllGggh5oLxJnpelNgHlO_qNh?usp=sharing)
+* The notebook 
 
 # Cite
 
