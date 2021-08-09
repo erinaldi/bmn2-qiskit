@@ -2,7 +2,7 @@
 
 Use the Variational Quantum Eigensolver in [`QISKIT`](www.qiskit.org) to find the ground state of the quantum 2-matrix model with gauge group SU(2) at different 't Hooft couplings.
 We consider a purely bosonic model and a supersymmetric model (*minimal BMN*).
-Results are reported in the publication [Rinaldi et al. (2021)](www.arxiv.org/abs/2108.00000).
+Results are reported in the publication [Rinaldi et al. (2021)](www.arxiv.org/abs/2108.02942).
 Consider the citation in [Cite](#cite).
 
 # Code
@@ -66,7 +66,7 @@ If you use this code (or parts of it), please consider citing our paper:
     title   = {Matrix Model simulations using Quantum Computing, Deep Learning, and Lattice Monte Carlo}, 
     author  = {Rinaldi, Enrico and Han, Xizhi and Hassan, Mohammad and Feng, Yuan and Nori, Franco and McGuigan, Michael and Hanada, Masanori},
     year    = {2021},
-    eprint  = {2108.00000},
+    eprint  = {2108.02942},
     archivePrefix = {arXiv},
     primaryClass = {quant-ph}
 }
