@@ -115,6 +115,7 @@ def eigenvalues_qiskit(qOp: SummedOp, k: int = 10):
         qOp (SummedOp): The quantum operator build from a PauliOp.
         k (int, optional): The number of lowest eigenvalues. Defaults to 10.
     """
+    algorithm_globals.massive=True
     mes = NumPyEigensolver(k)  # k is the number of eigenvalues to compute
     result = mes.compute_eigenvalues(qOp)
     return np.real(result.eigenvalues)
@@ -152,9 +153,9 @@ def run_vqe(
     # Create the matrix Hamiltonian in PauliOp form
     qubitOp = bmn2_hamiltonian(L, N, g2N)
     # check the exact eigenvalues
-    print(
-        f"Exact Result of discrete hamiltonian (qubit): {eigenvalues_qiskit(qubitOp)}"
-    )
+    #print(
+    #    f"Exact Result of discrete hamiltonian (qubit): {eigenvalues_qiskit(qubitOp)}"
+    #)
 
     # Next, we create the variational form.
     var_form = EfficientSU2(
@@ -165,9 +166,11 @@ def run_vqe(
     # fix the random seed of the simulator to make values reproducible
     rng = np.random.default_rng(seed=rngseed)
     algorithm_globals.random_seed = rngseed
-    backend = Aer.get_backend(
-        "statevector_simulator", max_parallel_threads=6, max_parallel_experiments=0
-    )
+    algorithm_globals.massive=True
+#    backend = Aer.get_backend(
+#        "statevector_simulator", max_parallel_threads=6, max_parallel_experiments=0
+#    )
+    backend = Aer.get_backend('aer_simulator')
     q_instance = QuantumInstance(
         backend, seed_transpiler=rngseed, seed_simulator=rngseed
     )
@@ -214,6 +217,7 @@ def run_vqe(
             initial_point=random_init,
             quantum_instance=q_instance,
             callback=store_intermediate_result,
+            include_custom=True,
         )
         # run the VQE with our Hamiltonian operator
         result = vqe.compute_minimum_eigenvalue(qubitOp)
