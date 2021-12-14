@@ -107,20 +107,6 @@ def bmn2_hamiltonian(L: int = 2, N: int = 2, g2N: float = 0.2) -> SummedOp:
     return H.to_pauli_op()
 
 
-def eigenvalues_qiskit(qOp: SummedOp, k: int = 10):
-    """Compute the lowest k eigenvalues of a quantum operator in matrix form qOp.
-    Internally it uses numpy.
-
-    Args:
-        qOp (SummedOp): The quantum operator build from a PauliOp.
-        k (int, optional): The number of lowest eigenvalues. Defaults to 10.
-    """
-    algorithm_globals.massive=True
-    mes = NumPyEigensolver(k)  # k is the number of eigenvalues to compute
-    result = mes.compute_eigenvalues(qOp)
-    return np.real(result.eigenvalues)
-
-
 # %%
 def run_vqe(
     L: int = 2,
@@ -152,10 +138,6 @@ def run_vqe(
     assert N == 2  # code only works for SU(2) :-(
     # Create the matrix Hamiltonian in PauliOp form
     qubitOp = bmn2_hamiltonian(L, N, g2N)
-    # check the exact eigenvalues
-    #print(
-    #    f"Exact Result of discrete hamiltonian (qubit): {eigenvalues_qiskit(qubitOp)}"
-    #)
 
     # Next, we create the variational form.
     var_form = EfficientSU2(
@@ -167,9 +149,7 @@ def run_vqe(
     rng = np.random.default_rng(seed=rngseed)
     algorithm_globals.random_seed = rngseed
     algorithm_globals.massive=True
-#    backend = Aer.get_backend(
-#        "statevector_simulator", max_parallel_threads=6, max_parallel_experiments=0
-#    )
+    # use the aer simulator instead of statevector
     backend = Aer.get_backend('aer_simulator')
     q_instance = QuantumInstance(
         backend, seed_transpiler=rngseed, seed_simulator=rngseed
@@ -210,7 +190,7 @@ def run_vqe(
         values = []
         # initital points for the angles of the rotation gates
         random_init = rng.uniform(-2 * np.pi, 2 * np.pi, var_form.num_parameters)
-        # Setup the VQE algorithm
+        # Setup the VQE algorithm with include_custom=True for Pauli expectations with snapshot
         vqe = VQE(
             ansatz=var_form,
             optimizer=optim,
