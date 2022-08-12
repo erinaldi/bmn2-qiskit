@@ -62,12 +62,18 @@ The notebooks in [`notebooks`](./notebooks) can be used as a starting point to u
 
 If you use this code (or parts of it), please consider citing our paper:
 ```bibtex
-@misc{rinaldi2021matrixmodels,
-    title   = {Matrix Model simulations using Quantum Computing, Deep Learning, and Lattice Monte Carlo}, 
-    author  = {Rinaldi, Enrico and Han, Xizhi and Hassan, Mohammad and Feng, Yuan and Nori, Franco and McGuigan, Michael and Hanada, Masanori},
-    year    = {2021},
-    eprint  = {2108.02942},
-    archivePrefix = {arXiv},
-    primaryClass = {quant-ph}
+@article{Rinaldi:2021jbg,
+    author = "Rinaldi, Enrico and Han, Xizhi and Hassan, Mohammad and Feng, Yuan and Nori, Franco and McGuigan, Michael and Hanada, Masanori",
+    title = "{Matrix-Model Simulations Using Quantum Computing, Deep Learning, and Lattice Monte Carlo}",
+    eprint = "2108.02942",
+    archivePrefix = "arXiv",
+    primaryClass = "quant-ph",
+    reportNumber = "RIKEN-iTHEMS-Report-21, DMUS-MP-21/10",
+    doi = "10.1103/PRXQuantum.3.010324",
+    journal = "PRX Quantum",
+    volume = "3",
+    number = "1",
+    pages = "010324",
+    year = "2022"
 }
 ```
